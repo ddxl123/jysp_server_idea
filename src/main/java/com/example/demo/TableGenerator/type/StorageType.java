@@ -1,8 +1,9 @@
-package com.example.demo.cannotation.type;
+package com.example.demo.TableGenerator.type;
 
 public enum StorageType {
-    NOT_NULL("NOT NULL"),
+    NONE(""),
     PRIMARY_KEY("PRIMARY KEY"),
+    NOT_NULL("NOT NULL"),
     UNIQUE("UNIQUE"),
     UNSIGNED("UNSIGNED"),
     AUTO_INCREMENT("AUTO_INCREMENT");

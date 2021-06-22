@@ -1,4 +1,4 @@
-package com.example.demo.cannotation;
+package com.example.demo.TableGenerator.Annotations;
 
 
 import java.lang.annotation.*;
@@ -7,6 +7,6 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
-public @interface MapTable {
+public @interface MappingTable {
 }
 
