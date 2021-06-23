@@ -1,11 +1,10 @@
 package com.example.demo.TableGenerator;
 
 import com.example.demo.DemoApplication;
-import com.example.demo.TableGenerator.Annotations.MappingColumn;
-import com.example.demo.TableGenerator.Annotations.MappingColumnPYID;
-import com.example.demo.TableGenerator.Annotations.MappingTable;
+import com.example.demo.TableGenerator.Annotations.*;
 import com.example.demo.TableGenerator.type.DataType;
 import com.example.demo.TableGenerator.type.StorageType;
+import com.example.demo.TableGenerator.type.ToGetType;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.Banner;
@@ -21,10 +20,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.ClassUtils;
 
 import javax.sql.DataSource;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -85,33 +84,39 @@ public class GenerateTableScanner {
                 Class<?> clazz = Class.forName(classname);
                 // 判断类中是否有指定注解
                 if (clazz.isAnnotationPresent(MappingTable.class)) {
+
                     // 获取实体映射的表名
                     String tableName = toLineCase(clazz.getSimpleName());
+
                     // 全部实体映射的字段
                     StringBuilder fieldContent = new StringBuilder();
+
                     for (Field field : clazz.getDeclaredFields()) {
-                        // 判断字段中是否有指定注解
-                        DataType dataType = null;
-                        StorageType[] storageTypes = null;
-                        MappingColumnPYID mappingColumnPYID = field.getAnnotation(MappingColumnPYID.class);
-                        MappingColumn mappingColumn = field.getAnnotation(MappingColumn.class);
-                        if (mappingColumnPYID != null) {
-                            dataType = mappingColumnPYID.dataType();
-                            storageTypes = mappingColumnPYID.storageTypes();
-                        } else {
-                            if (mappingColumn != null) {
-                                dataType = mappingColumn.dataType();
-                                storageTypes = mappingColumn.storageTypes();
-                            }
-                        }
-                        if (mappingColumn != null || mappingColumnPYID != null) {
-                            fieldContent.append(field.getName()).append(" ");
+                        // 获取字段中指定注解并解析出指定字段
+                        DataType dataType;
+                        StorageType[] storageTypes;
+
+                        ArrayList<Class<? extends Annotation>> classes = new ArrayList<>();
+                        classes.add(MappingColumn.class);
+                        classes.add(MappingColumnPYID.class);
+                        classes.add(MappingColumnAIID.class);
+                        classes.add(MappingColumnTimestamp.class);
+
+                        Optional<ToGetType> toGetType = getAnnotationProperty(field, classes);
+                        if (toGetType.isPresent()) {
+                            dataType = toGetType.get().getDataType();
+                            storageTypes = toGetType.get().getStorageTypes();
+
+                            // 获取 column 名
+                            fieldContent.append(toLineCase(field.getName())).append(" ");
+
                             // 必须调用 getTypeName, 因为不调用会有下划线 CHAR_20
                             fieldContent.append(dataType.getTypeName()).append(" ");
                             for (StorageType storageTypeName : storageTypes) {
                                 // 必须调用 getStorageTypeName, 因为不调用会有下划线 AUTO_INCREMENT
                                 fieldContent.append(storageTypeName.getStorageTypeName()).append(" ");
                             }
+
                             fieldContent.append(",\n");
                         }
                     }
@@ -139,13 +144,14 @@ public class GenerateTableScanner {
         Pattern humpPattern = Pattern.compile("[A-Z]");
         Matcher matcher = humpPattern.matcher(camelCase);
         StringBuilder sb = new StringBuilder();
-        if (matcher.find()) {
-            matcher.appendReplacement(sb, matcher.group(0).toLowerCase());
-        }
         while (matcher.find()) {
             matcher.appendReplacement(sb, "_" + matcher.group(0).toLowerCase());
         }
         matcher.appendTail(sb);
+        // 如果开头含下划线，则删掉
+        if (sb.charAt(0) == "_".charAt(0)) {
+            sb.deleteCharAt(0);
+        }
         return sb.toString();
     }
 
@@ -156,6 +162,29 @@ public class GenerateTableScanner {
                 ");";
         System.out.println(table);
         return table;
+    }
+
+    private Optional<ToGetType> getAnnotationProperty(Field field, ArrayList<Class<? extends Annotation>> classes) throws Throwable {
+        Optional<ToGetType> toGetType = Optional.empty();
+
+        for (Class<? extends Annotation> cla : classes) {
+            Annotation annotation = field.getAnnotation(cla);
+            if (annotation != null) {
+                if (toGetType.isPresent()) {
+                    throw new Throwable("该字段存在多个相同类型注解");
+                }
+
+                Method dataTypeMethod = cla.getMethod("dataType");
+                Method storageTypesMethod = cla.getMethod("storageTypes");
+                toGetType = Optional.of(
+                        new ToGetType(
+                                (DataType) dataTypeMethod.invoke(annotation),
+                                (StorageType[]) storageTypesMethod.invoke(annotation)
+                        ));
+            }
+        }
+
+        return toGetType;
     }
 
 }

@@ -8,9 +8,9 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
-public @interface MappingColumn {
-    DataType dataType();
+public @interface MappingColumnTimestamp {
+
+    DataType dataType() default DataType.TIMESTAMP;
 
     StorageType[] storageTypes() default {};
 }
-
