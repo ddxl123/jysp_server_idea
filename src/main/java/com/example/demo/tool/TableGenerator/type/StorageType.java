@@ -1,4 +1,4 @@
-package com.example.demo.TableGenerator.type;
+package com.example.demo.tool.TableGenerator.type;
 
 public enum StorageType {
     PRIMARY_KEY("PRIMARY KEY"),

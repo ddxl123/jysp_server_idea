@@ -1,7 +1,7 @@
-package com.example.demo.TableGenerator.Annotations;
+package com.example.demo.tool.TableGenerator.Annotations;
 
-import com.example.demo.TableGenerator.type.DataType;
-import com.example.demo.TableGenerator.type.StorageType;
+import com.example.demo.tool.TableGenerator.type.DataType;
+import com.example.demo.tool.TableGenerator.type.StorageType;
 
 import java.lang.annotation.*;
 

@@ -1,4 +1,4 @@
-package com.example.demo.TableGenerator.type;
+package com.example.demo.tool.TableGenerator.type;
 
 import lombok.Data;
 

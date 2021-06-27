@@ -1,4 +1,4 @@
-package com.example.demo.TableGenerator;
+package com.example.demo.tool.TableGenerator;
 
 public class GenerateTableRun {
     public static void main(String[] args) {

@@ -1,5 +1,7 @@
-package com.example.demo.config;
+package com.example.demo.config.security;
 
+import com.example.demo.controller.SecurityController;
+import com.example.demo.uniteurl.PrefixURL;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    // Security 会自动检索 bean 中的加密对象
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
@@ -17,11 +20,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // 自定义登陆页面
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
+
+        final String KEY_USERNAME = "username";
+        final String KEY_PASSWORD = "password";
+
+        // 表单提交的形式请求头的 Content-Type 必须是 x-www-form-urlencoded 类型（字符串形式）。
+        // controller 中的 @RequestBody 请求头的 Content-Type 必须是 application/json 等类型（raw 形式），
         http.formLogin()
                 // （GET）被重定向的登陆 url。
                 // 重定向：浏览器的 URL 会变成重定向的 URL。
                 // 因为是重定向，所以 url 可以是资源 /xxx.html，也可以是普通的请求路径 /xxx, 也可以是 https://www.baidu.com/。
-                .loginPage("/login_page")
+                .loginPage(SecurityController.login_page)
 
                 ///////////////////////////////////////////////////////////////////
                 ///
@@ -31,13 +41,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 //
                 // 1. 请求只要是该 URL，若 body 参数不存在对应 username_key password_key, 或 password 错误，都会被重定向至 failureForwardUrl。
                 // 2. 若请求带有 params，则 URL 会带上 "key=value" 内容，与 loginProcessingUrl 的 URL 不匹配，因此会被作拦截处理, 而并不会作提交处理。
-                .loginProcessingUrl("/on_login")
+                .loginProcessingUrl(SecurityController.on_login)
 
                 // 可自定义 POST 请求的 body 中 username 的 key。
-                .usernameParameter("the_username_key")
+                .usernameParameter(KEY_USERNAME)
 
                 // 可自定义 POST 请求的 body 中 password 的 key。
-                .passwordParameter("the_password_key")
+                .passwordParameter(KEY_PASSWORD)
 
 
                 //  示例:
@@ -59,10 +69,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 //  3. 因为是在 loginProcessingUrl 基础上的请求转发，所以下面的 successForwardUrl 和 loginProcessingUrl 也必须和 loginProcessingUrl 一样是 POST 请求。
 
                 // （POST）登陆成功的请求转发。
-                .successForwardUrl("/success")
+                .successForwardUrl(SecurityController.authentication_success)
 
                 // （POST）登陆失败的请求转发。
-                .failureForwardUrl("/fail");
+                .failureHandler(new SecurityAuthenticationFailureHandler(SecurityController.authentication_failure));
 
         //      ///
         //      ///
@@ -85,15 +95,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 2. authenticated() 就是除了被 antMatchers() 外的 anyRequest() 的 URLs, 都必须进行被认证(authenticated)登陆后才能访问。
         http.authorizeRequests()
                 // 因为请求转发的 URL 不会被拦截，而请求重定向 的 URL 会被拦截，因此不会拦截上面的 URL: loginProcessingUrl successForwardUrl failureForwardUrl
-                .antMatchers("/login_page").permitAll()
-
-                // 在用户登陆已登陆的状态下(在浏览器中以 cookie 的方式标记是否已登录),
-                // 且在创建 User 时, 在 UserDetailsService 接口实现中的 AuthorityUtils.commaSeparatedStringToAuthorityList("vip") 中被标记为 vip 权限的用户,
-                // 才能进入 /vip。
-                .antMatchers("/vip").hasAuthority("vip")
-
-                // 被拦截的 URL 都必须先被认证（被重定向至 loginPage），无论该 URL 是否有在你的 controller 中被定义。
-                .anyRequest().authenticated();
+                .antMatchers(PrefixURL.no_login_required + "/**").permitAll()
+                .antMatchers(PrefixURL.login_required + "/**").authenticated();
+        // 在用户登陆已登陆的状态下(在浏览器中以 cookie 的方式标记是否已登录),
+        // 且在创建 User 时, 在 UserDetailsService 接口实现中的 AuthorityUtils.commaSeparatedStringToAuthorityList("vip") 中被标记为 vip 权限的用户,
+        // 才能进入 /vip。
+//                .antMatchers("/vip").hasAuthority("vip")
+        // 被拦截的 URL 都必须先被认证（被重定向至 loginPage），无论该 URL 是否有在你的 controller 中被定义。
+//                .anyRequest().authenticated();
 
         // 禁用 csrf
         http.csrf().disable();

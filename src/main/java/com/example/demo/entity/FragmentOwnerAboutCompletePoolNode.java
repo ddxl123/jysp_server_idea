@@ -1,9 +1,9 @@
 package com.example.demo.entity;
 
-import com.example.demo.TableGenerator.Annotations.MappingColumnAIID;
-import com.example.demo.TableGenerator.Annotations.MappingColumnPYID;
-import com.example.demo.TableGenerator.Annotations.MappingColumnTimestamp;
-import com.example.demo.TableGenerator.Annotations.MappingTable;
+import com.example.demo.tool.TableGenerator.Annotations.MappingColumnAIID;
+import com.example.demo.tool.TableGenerator.Annotations.MappingColumnPYID;
+import com.example.demo.tool.TableGenerator.Annotations.MappingColumnTimestamp;
+import com.example.demo.tool.TableGenerator.Annotations.MappingTable;
 import lombok.Data;
 
 import java.math.BigInteger;

@@ -1,10 +1,10 @@
-package com.example.demo.TableGenerator;
+package com.example.demo.tool.TableGenerator;
 
 import com.example.demo.DemoApplication;
-import com.example.demo.TableGenerator.Annotations.*;
-import com.example.demo.TableGenerator.type.DataType;
-import com.example.demo.TableGenerator.type.StorageType;
-import com.example.demo.TableGenerator.type.ToGetType;
+import com.example.demo.tool.TableGenerator.Annotations.*;
+import com.example.demo.tool.TableGenerator.type.DataType;
+import com.example.demo.tool.TableGenerator.type.StorageType;
+import com.example.demo.tool.TableGenerator.type.ToGetType;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.Banner;
