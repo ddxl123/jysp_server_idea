@@ -14,6 +14,9 @@ import lombok.Data;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
+/**
+ * @author 10338
+ */
 @Data
 @MappingTable
 @TableName

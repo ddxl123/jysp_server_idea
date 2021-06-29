@@ -4,3 +4,11 @@ spring:
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: 1033839760@qq.com
+    password: ltqarokljzlvbbij
+logging:
+  file:
+    name: logs/errlog.log

@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.demo.tool.TableGenerator.Annotations.MappingColumn;
 import com.example.demo.tool.TableGenerator.Annotations.MappingColumnPYID;
 import com.example.demo.tool.TableGenerator.Annotations.MappingColumnTimestamp;
@@ -10,8 +11,12 @@ import lombok.Data;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
+/**
+ * @author 10338
+ */
 @Data
 @MappingTable
+@TableName
 public class User {
 
     @MappingColumnPYID

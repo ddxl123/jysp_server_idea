@@ -1,16 +1,25 @@
 package com.example.demo;
 
 
-import com.example.demo.entity.EmailVerify;
-import com.example.demo.mapper.EmailVerifyMapper;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
+import java.util.StringTokenizer;
 
 @SpringBootTest()
 class DemoApplicationTest {
 
+
+    @Test
+    public void a() {
+
+
+        StringBuffer stringBuffer = null;
+
+
+
+        System.out.println(stringBuffer);
+
+    }
 
 }
