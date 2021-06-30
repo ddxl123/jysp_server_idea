@@ -1,7 +1,7 @@
 package com.example.demo.entity;
 
-import com.example.demo.tool.TableGenerator.Annotations.*;
-import com.example.demo.tool.TableGenerator.type.DataType;
+import com.example.demo.tool.tablegenerator.annotation.*;
+import com.example.demo.tool.tablegenerator.type.DataType;
 import lombok.Data;
 
 import java.math.BigInteger;
@@ -11,26 +11,26 @@ import java.sql.Timestamp;
  * @author 10338
  */
 @Data
-@MappingTable
+@OutTable
 public class RawFragment {
-    @MappingColumnPYID
+    @OutColumnPYID
     private BigInteger id;
 
-    @MappingColumnAIID
+    @OutColumnAIID
     private BigInteger userAiid;
 
-    @MappingColumnAIID
+    @OutColumnAIID
     private BigInteger fatherRawFragmentAiid;
 
-    @MappingColumnAIID
+    @OutColumnAIID
     private BigInteger recommendRawRuleAiid;
 
-    @MappingColumn(dataType = DataType.CHAR_20)
+    @OutColumn(dataType = DataType.CHAR_20)
     private String title;
 
-    @MappingColumnTimestamp
+    @OutColumnTimestamp
     private Timestamp createdAt;
 
-    @MappingColumnTimestamp
+    @OutColumnTimestamp
     private Timestamp updatedAt;
 }

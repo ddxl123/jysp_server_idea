@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
  * @author 10338
  */
 @Configuration
-public class LogOutput {
+public class OutputLog {
 
     @Bean
     public Logger getLogger() {

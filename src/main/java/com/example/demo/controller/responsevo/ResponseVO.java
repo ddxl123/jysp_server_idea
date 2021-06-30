@@ -1,4 +1,4 @@
-package com.example.demo.entityvo.responsevo;
+package com.example.demo.controller.responsevo;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
  */
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseVO {
+public class ResponseVO<T> {
     /**
      * 响应码。
      */
@@ -32,19 +32,19 @@ public class ResponseVO {
      */
     @Nullable
     @Getter
-    private Object data;
+    private T data;
 
-    public ResponseVO setCode(Integer code) {
+    public ResponseVO<T> setCode(Integer code) {
         this.code = code;
         return this;
     }
 
-    public ResponseVO setData(@Nullable Object data) {
+    public ResponseVO<T> setData(@Nullable T data) {
         this.data = data;
         return this;
     }
 
-    public ResponseVO setMessage(@Nullable String message) {
+    public ResponseVO<T> setMessage(@Nullable String message) {
         this.message = message;
         return this;
     }
@@ -52,7 +52,7 @@ public class ResponseVO {
     /**
      * 必须放在最后，因为要 output
      */
-    public ResponseVO responseWithLog(@NotNull ResponseWithLog responseWithLog) {
+    public ResponseVO<T> outputLog(@NotNull ResponseWithLog responseWithLog) {
         responseWithLog.setResponseVO(this);
         return this;
     }

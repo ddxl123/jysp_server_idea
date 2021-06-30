@@ -1,7 +1,7 @@
 package com.example.demo.entity;
 
-import com.example.demo.tool.TableGenerator.Annotations.*;
-import com.example.demo.tool.TableGenerator.type.DataType;
+import com.example.demo.tool.tablegenerator.annotation.*;
+import com.example.demo.tool.tablegenerator.type.DataType;
 import lombok.Data;
 
 import java.math.BigInteger;
@@ -11,26 +11,26 @@ import java.sql.Timestamp;
  * @author 10338
  */
 @Data
-@MappingTable
+@OutTable
 public class PnRulePoolNode {
-    @MappingColumnPYID
+    @OutColumnPYID
     private BigInteger id;
 
-    @MappingColumnAIID
+    @OutColumnAIID
     private BigInteger userAiid;
 
-    @MappingColumn(dataType = DataType.TINYINT)
+    @OutColumn(dataType = DataType.TINYINT)
     private Integer type;
 
-    @MappingColumn(dataType = DataType.CHAR_20)
+    @OutColumn(dataType = DataType.CHAR_20)
     private String name;
 
-    @MappingColumn(dataType = DataType.CHAR_50)
+    @OutColumn(dataType = DataType.CHAR_50)
     private String position;
 
-    @MappingColumnTimestamp
+    @OutColumnTimestamp
     private Timestamp createdAt;
 
-    @MappingColumnTimestamp
+    @OutColumnTimestamp
     private Timestamp updatedAt;
 }

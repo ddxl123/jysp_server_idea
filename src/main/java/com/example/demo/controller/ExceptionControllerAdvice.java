@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.entityvo.responsevo.ResponseVO;
-import com.example.demo.entityvo.responsevo.ResponseWithLog;
+import com.example.demo.controller.responsevo.ResponseVO;
+import com.example.demo.controller.responsevo.ResponseWithLog;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +27,8 @@ public class ExceptionControllerAdvice {
      * 响应码只能放在 controller 中进行标记，其他情况全部报异常，让客户端处理。
      */
     @ExceptionHandler(value = BindException.class)
-    public ResponseVO errorHandler(BindException bindException) {
-        ResponseVO responseVO = new ResponseVO();
+    public ResponseVO<Object> errorHandler(BindException bindException) {
+        ResponseVO<Object> responseVO = new ResponseVO<>();
         try {
             String errMessage;
             if (bindException.hasErrors()) {
@@ -73,20 +73,20 @@ public class ExceptionControllerAdvice {
      * 拦截其他未知 error
      */
     @ExceptionHandler(Throwable.class)
-    public ResponseVO otherError(Throwable throwable) {
-        ResponseVO responseVO = new ResponseVO();
+    public ResponseVO<Object> otherError(Throwable throwable) {
+        ResponseVO<Object> responseVO = new ResponseVO<>();
         return setUnknownError(responseVO, 5005, throwable);
     }
 
     /**
      * 设置未知错误。
      */
-    ResponseVO setUnknownError(ResponseVO responseVO, int code, Throwable throwable) {
+    ResponseVO<Object> setUnknownError(ResponseVO<Object> responseVO, int code, Throwable throwable) {
         responseVO
                 .setCode(code)
                 .setData(null)
                 .setMessage("错误(" + code + "), 请咨询管理员")
-                .responseWithLog(new ResponseWithLog(logger, true, throwable));
+                .outputLog(new ResponseWithLog(logger, true, throwable));
         return responseVO;
     }
 

@@ -1,4 +1,4 @@
-package com.example.demo.entityvo.responsevo;
+package com.example.demo.controller.responsevo;
 
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ public class ResponseWithLog {
     private final Throwable throwable;
 
     @NotNull
-    private ResponseVO responseVO;
+    private ResponseVO<?> responseVO;
 
     /**
      * 设置 Logger，因为 Logger 没法自动注入到非配置类中。
@@ -30,13 +30,13 @@ public class ResponseWithLog {
      *
      * @param isErrorLog 如果为 true，则为 logger.error()，否则为 logger.info()。
      */
-    public ResponseWithLog(Logger logger, boolean isErrorLog,@Nullable Throwable throwable) {
+    public ResponseWithLog(Logger logger, boolean isErrorLog, @Nullable Throwable throwable) {
         this.logger = logger;
         this.isErrorLog = isErrorLog;
         this.throwable = throwable;
     }
 
-    public void setResponseVO(ResponseVO responseVO) {
+    public void setResponseVO(ResponseVO<?> responseVO) {
         this.responseVO = responseVO;
         output();
     }

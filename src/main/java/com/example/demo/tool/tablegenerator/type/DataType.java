@@ -1,4 +1,4 @@
-package com.example.demo.tool.TableGenerator.type;
+package com.example.demo.tool.tablegenerator.type;
 
 public enum DataType {
 

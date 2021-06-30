@@ -1,9 +1,9 @@
 package com.example.demo.entity;
 
-import com.example.demo.tool.TableGenerator.Annotations.MappingColumnAIID;
-import com.example.demo.tool.TableGenerator.Annotations.MappingColumnPYID;
-import com.example.demo.tool.TableGenerator.Annotations.MappingColumnTimestamp;
-import com.example.demo.tool.TableGenerator.Annotations.MappingTable;
+import com.example.demo.tool.tablegenerator.annotation.OutColumnAIID;
+import com.example.demo.tool.tablegenerator.annotation.OutColumnPYID;
+import com.example.demo.tool.tablegenerator.annotation.OutColumnTimestamp;
+import com.example.demo.tool.tablegenerator.annotation.OutTable;
 import lombok.Data;
 
 import java.math.BigInteger;
@@ -13,23 +13,23 @@ import java.sql.Timestamp;
  * @author 10338
  */
 @Data
-@MappingTable
+@OutTable
 public class FragmentOwnerAboutRulePoolNode {
-    @MappingColumnPYID
+    @OutColumnPYID
     private BigInteger id;
 
-    @MappingColumnAIID
+    @OutColumnAIID
     private BigInteger userAiid;
 
-    @MappingColumnAIID
+    @OutColumnAIID
     private BigInteger pn_rule_pool_node_aiid;
 
-    @MappingColumnAIID
+    @OutColumnAIID
     private BigInteger raw_rule_aiid;
 
-    @MappingColumnTimestamp
+    @OutColumnTimestamp
     private Timestamp createdAt;
 
-    @MappingColumnTimestamp
+    @OutColumnTimestamp
     private Timestamp updatedAt;
 }

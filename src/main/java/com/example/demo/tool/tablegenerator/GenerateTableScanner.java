@@ -1,10 +1,10 @@
-package com.example.demo.tool.TableGenerator;
+package com.example.demo.tool.tablegenerator;
 
 import com.example.demo.DemoApplication;
-import com.example.demo.tool.TableGenerator.Annotations.*;
-import com.example.demo.tool.TableGenerator.type.DataType;
-import com.example.demo.tool.TableGenerator.type.StorageType;
-import com.example.demo.tool.TableGenerator.type.ToGetType;
+import com.example.demo.tool.tablegenerator.annotation.*;
+import com.example.demo.tool.tablegenerator.type.DataType;
+import com.example.demo.tool.tablegenerator.type.StorageType;
+import com.example.demo.tool.tablegenerator.type.ToGetType;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.Banner;
@@ -27,6 +27,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * @author 10338
+ */
 @Getter
 public class GenerateTableScanner {
 
@@ -83,7 +86,7 @@ public class GenerateTableScanner {
                 String classname = reader.getClassMetadata().getClassName();
                 Class<?> clazz = Class.forName(classname);
                 // 判断类中是否有指定注解
-                if (clazz.isAnnotationPresent(MappingTable.class)) {
+                if (clazz.isAnnotationPresent(OutTable.class)) {
 
                     // 获取实体映射的表名
                     String tableName = toLineCase(clazz.getSimpleName());
@@ -97,10 +100,10 @@ public class GenerateTableScanner {
                         StorageType[] storageTypes;
 
                         ArrayList<Class<? extends Annotation>> classes = new ArrayList<>();
-                        classes.add(MappingColumn.class);
-                        classes.add(MappingColumnPYID.class);
-                        classes.add(MappingColumnAIID.class);
-                        classes.add(MappingColumnTimestamp.class);
+                        classes.add(OutColumn.class);
+                        classes.add(OutColumnPYID.class);
+                        classes.add(OutColumnAIID.class);
+                        classes.add(OutColumnTimestamp.class);
 
                         Optional<ToGetType> toGetType = getAnnotationProperty(field, classes);
                         if (toGetType.isPresent()) {

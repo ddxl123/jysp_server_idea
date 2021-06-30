@@ -1,5 +1,8 @@
-package com.example.demo.tool.TableGenerator;
+package com.example.demo.tool.tablegenerator;
 
+/**
+ * @author 10338
+ */
 public class GenerateTableRun {
     public static void main(String[] args) {
         GenerateTableScanner generateTableScanner = new GenerateTableScanner(args);
