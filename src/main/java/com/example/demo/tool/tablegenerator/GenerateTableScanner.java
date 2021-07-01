@@ -4,7 +4,7 @@ import com.example.demo.DemoApplication;
 import com.example.demo.tool.tablegenerator.annotation.*;
 import com.example.demo.tool.tablegenerator.type.DataType;
 import com.example.demo.tool.tablegenerator.type.StorageType;
-import com.example.demo.tool.tablegenerator.type.ToGetType;
+import com.example.demo.tool.tablegenerator.type.TypeWrap;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.Banner;
@@ -27,14 +27,30 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+class AnnotationClasses {
+
+    /**
+     * 注解类集合
+     */
+    public static final ArrayList<Class<? extends Annotation>> ANNOTATION_CLASSES = new ArrayList<>(Arrays.asList(
+            OutColumn.class,
+            OutColumnPYID.class,
+            OutColumnAIID.class,
+            OutColumnTimestamp.class
+    ));
+}
+
 /**
  * @author 10338
  */
 @Getter
 public class GenerateTableScanner {
 
+
     private final JdbcTemplate jdbcTemplate;
     private final ConfigurableApplicationContext context;
+    private final Pattern humpPattern = Pattern.compile("[A-Z]");
     @Setter
     boolean isDropAllIfExist = false;
     @Setter
@@ -55,8 +71,8 @@ public class GenerateTableScanner {
             if (isDropAllIfExist) {
                 System.out.println("正在删除全部表...");
 
-                String dbURL = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection().getMetaData().getURL();
-                String dbName = dbURL.split("/")[3];
+                String dbUrl = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection().getMetaData().getURL();
+                String dbName = dbUrl.split("/")[3];
                 List<Map<String, Object>> tableNames = jdbcTemplate.queryForList("select table_name from information_schema.tables where table_schema='" + dbName + "'");
                 for (Map<String, Object> tableName : tableNames
                 ) {
@@ -72,9 +88,9 @@ public class GenerateTableScanner {
             //spring工具类，可以获取指定路径下的全部类
             ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 
-            String RESOURCE_PATTERN = "/**/*.class";
+            String resourcePattern = "/**/*.class";
             String pattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
-                    ClassUtils.convertClassNameToResourcePath(packageName) + RESOURCE_PATTERN;
+                    ClassUtils.convertClassNameToResourcePath(packageName) + resourcePattern;
             Resource[] resources = resourcePatternResolver.getResources(pattern);
             //MetadataReader 的工厂类
             MetadataReaderFactory metadataReaderFactory = new CachingMetadataReaderFactory(resourcePatternResolver);
@@ -91,31 +107,27 @@ public class GenerateTableScanner {
                     // 获取实体映射的表名
                     String tableName = toLineCase(clazz.getSimpleName());
 
-                    // 全部实体映射的字段
+                    // 全部实体映射的 字段—column。
                     StringBuilder fieldContent = new StringBuilder();
 
+                    // 遍历每个类的每个字段(含私有,不含继承)
                     for (Field field : clazz.getDeclaredFields()) {
-                        // 获取字段中指定注解并解析出指定字段
-                        DataType dataType;
-                        StorageType[] storageTypes;
 
-                        ArrayList<Class<? extends Annotation>> classes = new ArrayList<>();
-                        classes.add(OutColumn.class);
-                        classes.add(OutColumnPYID.class);
-                        classes.add(OutColumnAIID.class);
-                        classes.add(OutColumnTimestamp.class);
+                        // 获取每个字段的每个符合要求的注解，若不存在注解或不符合要求，则返回 Optional.empty()。
+                        Optional<TypeWrap> typeWrapOptional = getAnnotationProperty(field);
 
-                        Optional<ToGetType> toGetType = getAnnotationProperty(field, classes);
-                        if (toGetType.isPresent()) {
-                            dataType = toGetType.get().getDataType();
-                            storageTypes = toGetType.get().getStorageTypes();
+                        if (typeWrapOptional.isPresent()) {
+                            TypeWrap typeWrap = typeWrapOptional.get();
 
-                            // 获取 column 名
+                            // 检查 [数据库字段类型] 是否与 [java 字段类型] 对应。
+                            checkType(field, typeWrap);
+
+                            // 获取 字段—column 名。
                             fieldContent.append(toLineCase(field.getName())).append(" ");
 
                             // 必须调用 getTypeName, 因为不调用会有下划线 CHAR_20
-                            fieldContent.append(dataType.getTypeName()).append(" ");
-                            for (StorageType storageTypeName : storageTypes) {
+                            fieldContent.append(typeWrap.getDataType().getDatabaseName()).append(" ");
+                            for (StorageType storageTypeName : typeWrap.getStorageTypes()) {
                                 // 必须调用 getStorageTypeName, 因为不调用会有下划线 AUTO_INCREMENT
                                 fieldContent.append(storageTypeName.getStorageTypeName()).append(" ");
                             }
@@ -125,8 +137,10 @@ public class GenerateTableScanner {
                     }
                     // 删掉最后一个逗号
                     fieldContent.deleteCharAt(fieldContent.length() - 2);
+
                     // 创建单表的完整 sql 语句
                     String sql = generateSql(tableName, fieldContent);
+
                     // 执行 sql 语句
                     jdbcTemplate.execute(sql);
                 }
@@ -144,7 +158,6 @@ public class GenerateTableScanner {
     }
 
     private String toLineCase(String camelCase) {
-        Pattern humpPattern = Pattern.compile("[A-Z]");
         Matcher matcher = humpPattern.matcher(camelCase);
         StringBuilder sb = new StringBuilder();
         while (matcher.find()) {
@@ -152,7 +165,8 @@ public class GenerateTableScanner {
         }
         matcher.appendTail(sb);
         // 如果开头含下划线，则删掉
-        if (sb.charAt(0) == "_".charAt(0)) {
+        String underLine = "_";
+        if (sb.charAt(0) == underLine.charAt(0)) {
             sb.deleteCharAt(0);
         }
         return sb.toString();
@@ -167,27 +181,56 @@ public class GenerateTableScanner {
         return table;
     }
 
-    private Optional<ToGetType> getAnnotationProperty(Field field, ArrayList<Class<? extends Annotation>> classes) throws Throwable {
-        Optional<ToGetType> toGetType = Optional.empty();
 
-        for (Class<? extends Annotation> cla : classes) {
-            Annotation annotation = field.getAnnotation(cla);
+    /**
+     * 获取每个字段的每个符合要求的注解，若不存在注解或不符合要求，则返回 Optional.empty()。
+     */
+    private Optional<TypeWrap> getAnnotationProperty(Field field) throws Throwable {
+        Optional<TypeWrap> typeWrap = Optional.empty();
+
+        for (Class<? extends Annotation> annotationClass : AnnotationClasses.ANNOTATION_CLASSES) {
+            // 获取每个字段的对应注解类，若不存在，则为 null。
+            Annotation annotation = field.getAnnotation(annotationClass);
             if (annotation != null) {
-                if (toGetType.isPresent()) {
+                if (typeWrap.isPresent()) {
                     throw new Throwable("该字段存在多个相同类型注解");
                 }
 
-                Method dataTypeMethod = cla.getMethod("dataType");
-                Method storageTypesMethod = cla.getMethod("storageTypes");
-                toGetType = Optional.of(
-                        new ToGetType(
+                // 注解类的成员基本全是方法。
+                // 这里可能会异常：未找到对应方法
+                Method dataTypeMethod = annotationClass.getMethod("dataType");
+                Method storageTypesMethod = annotationClass.getMethod("storageTypes");
+                typeWrap = Optional.of(
+                        new TypeWrap(
                                 (DataType) dataTypeMethod.invoke(annotation),
                                 (StorageType[]) storageTypesMethod.invoke(annotation)
                         ));
             }
         }
+        return typeWrap;
+    }
 
-        return toGetType;
+    /**
+     * 检查 [数据库字段类型] 是否与 [java 字段类型] 对应。
+     */
+    private void checkType(Field field, TypeWrap typeWrap) throws Throwable {
+        String enumName = typeWrap.getDataType().name();
+        String databaseTypeName = typeWrap.getDataType().getDatabaseName();
+        String javaTypeName = typeWrap.getDataType().getJavaClass().getTypeName();
+        String fieldTypeName = field.getType().getTypeName();
+
+        if (!fieldTypeName.equals(javaTypeName)) {
+            throw new Throwable(
+                    "[数据库字段类型] 与 [java 字段类型] 不一致!" + "\n" +
+                            "应该为: " +
+                            "[java 字段类型名: " + javaTypeName + "], " +
+                            "[数据库字段类型名: " + databaseTypeName + "], " +
+                            "[枚举名: " + enumName + "] " + "\n" +
+                            "而当前: [java 字段类型名: " + fieldTypeName + "]" + "\n" +
+                            "实体类: " + field.getDeclaringClass().getTypeName() + "\n" +
+                            "字段名: " + field.getName()
+            );
+        }
     }
 
 }

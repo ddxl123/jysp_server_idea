@@ -31,8 +31,8 @@ public class FragmentOwnerAboutPendingPoolNode {
     private BigInteger recommendRuleAiid;
 
     @OutColumnTimestamp
-    private Timestamp createdAt;
+    private Long createdAt;
 
     @OutColumnTimestamp
-    private Timestamp updatedAt;
+    private Long updatedAt;
 }

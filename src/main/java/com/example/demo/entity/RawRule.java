@@ -25,8 +25,8 @@ public class RawRule {
     private BigInteger fatherRawRuleAiid;
 
     @OutColumnTimestamp
-    private Timestamp createdAt;
+    private Long createdAt;
 
     @OutColumnTimestamp
-    private Timestamp updatedAt;
+    private Long updatedAt;
 }

@@ -29,8 +29,8 @@ public class RawFragment {
     private String title;
 
     @OutColumnTimestamp
-    private Timestamp createdAt;
+    private Long createdAt;
 
     @OutColumnTimestamp
-    private Timestamp updatedAt;
+    private Long updatedAt;
 }

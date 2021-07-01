@@ -10,7 +10,8 @@ class DemoApplicationTest {
 
     @Test
     public void a() {
-        System.out.println(Math.random() * 9000 + 1000);
+        Integer i =2147483647;
+        System.out.println();
     }
 
 }

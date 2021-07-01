@@ -31,8 +31,8 @@ public class FragmentOwnerAboutMemoryPoolNode {
     private BigInteger usingRuleAiid;
 
     @OutColumnTimestamp
-    private Timestamp createdAt;
+    private Long createdAt;
 
     @OutColumnTimestamp
-    private Timestamp updatedAt;
+    private Long updatedAt;
 }

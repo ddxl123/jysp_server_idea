@@ -12,13 +12,12 @@ import com.example.demo.tool.tablegenerator.type.DataType;
 import lombok.Data;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
 
 /**
  * @author 10338
  */
-@Data
 @OutTable
+@Data
 @TableName
 public class EmailVerify {
     @OutColumnPYID
@@ -29,15 +28,15 @@ public class EmailVerify {
     @TableField
     private String email;
 
-    @OutColumn(dataType = DataType.INT)
+    @OutColumn(dataType = DataType.INT_INTEGER)
     @TableField
-    private String code;
+    private Integer code;
 
     @OutColumnTimestamp
     @TableField
-    private Timestamp createdAt;
+    private Long createdAt;
 
     @OutColumnTimestamp
     @TableField
-    private Timestamp updatedAt;
+    private Long updatedAt;
 }

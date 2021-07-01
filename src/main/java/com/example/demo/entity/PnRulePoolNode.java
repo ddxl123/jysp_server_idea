@@ -29,8 +29,8 @@ public class PnRulePoolNode {
     private String position;
 
     @OutColumnTimestamp
-    private Timestamp createdAt;
+    private Long createdAt;
 
     @OutColumnTimestamp
-    private Timestamp updatedAt;
+    private Long updatedAt;
 }

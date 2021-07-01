@@ -22,14 +22,14 @@ public class FragmentOwnerAboutRulePoolNode {
     private BigInteger userAiid;
 
     @OutColumnAIID
-    private BigInteger pn_rule_pool_node_aiid;
+    private BigInteger pnRulePoolNodeAiid;
 
     @OutColumnAIID
-    private BigInteger raw_rule_aiid;
+    private BigInteger rawRuleAiid;
 
     @OutColumnTimestamp
-    private Timestamp createdAt;
+    private Long createdAt;
 
     @OutColumnTimestamp
-    private Timestamp updatedAt;
+    private Long updatedAt;
 }

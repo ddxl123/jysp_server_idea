@@ -20,7 +20,7 @@ public class SpringFoxConfig {
         return new Docket(DocumentationType.OAS_30)
                 .apiInfo(apiInfo())
                 .select()
-                // 只对一下起路径作用
+                // 只对以下起包作用
                 .apis(RequestHandlerSelectors.basePackage(GlobalConstant.CONTROLLER_PACKAGE))
                 .build();
     }

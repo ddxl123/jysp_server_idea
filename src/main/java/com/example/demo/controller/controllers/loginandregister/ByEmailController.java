@@ -39,14 +39,21 @@ public class ByEmailController {
     MailProperties mailProperties;
     Logger logger;
 
+
     @PostMapping(path = "/send_email")
     @ApiOperation(value = "给用户发邮箱",
             notes = "1001,邮箱发送异常" + "<br>" +
                     "1000,邮箱已发送, 请注意查收!")
     public ResponseVO<Void> sendEmail(@RequestBody @Validated @Email SendEmailRequestVO email) {
         try {
-            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            // 随机 5 位数的验证码
             int randomNum = (int) (Math.random() * 9000 + 1000);
+
+            // 将随机验证码存入数据库
+
+
+            // 将邮箱发送成功的消息进行响应
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
             mailMessage.setSubject("验证码: " + randomNum);
             mailMessage.setTo(email.getEmail());
             mailMessage.setFrom(mailProperties.getUsername());
