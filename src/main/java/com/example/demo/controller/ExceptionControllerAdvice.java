@@ -23,7 +23,8 @@ public class ExceptionControllerAdvice {
     Logger logger;
 
     /**
-     * Validated 的异常处理。
+     * Validated 失败的处理。
+     * <br>
      * 响应码只能放在 controller 中进行标记，其他情况全部报异常，让客户端处理。
      */
     @ExceptionHandler(value = BindException.class)

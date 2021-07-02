@@ -9,6 +9,7 @@ import com.example.demo.tool.tablegenerator.annotation.OutColumnPYID;
 import com.example.demo.tool.tablegenerator.annotation.OutColumnTimestamp;
 import com.example.demo.tool.tablegenerator.annotation.OutTable;
 import com.example.demo.tool.tablegenerator.type.DataType;
+import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigInteger;
@@ -18,6 +19,7 @@ import java.math.BigInteger;
  */
 @OutTable
 @Data
+@Builder
 @TableName
 public class EmailVerify {
     @OutColumnPYID

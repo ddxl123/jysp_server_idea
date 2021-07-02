@@ -4,7 +4,9 @@ import com.example.demo.controller.requestvo.loginandregister.byemail.SendEmailR
 import com.example.demo.controller.requestvo.loginandregister.byemail.VerifyEmailRequestVO;
 import com.example.demo.controller.responsevo.ResponseVO;
 import com.example.demo.controller.responsevo.ResponseWithLog;
+import com.example.demo.entity.EmailVerify;
 import com.example.demo.entity.User;
+import com.example.demo.service.EmailVerifyService;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,8 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.constraints.Email;
 
 /**
  * @author 10338
@@ -38,19 +38,25 @@ public class ByEmailController {
     JavaMailSender javaMailSender;
     MailProperties mailProperties;
     Logger logger;
+    EmailVerifyService emailVerifyService;
 
 
     @PostMapping(path = "/send_email")
     @ApiOperation(value = "给用户发邮箱",
             notes = "1001,邮箱发送异常" + "<br>" +
                     "1000,邮箱已发送, 请注意查收!")
-    public ResponseVO<Void> sendEmail(@RequestBody @Validated @Email SendEmailRequestVO email) {
+    public ResponseVO<Void> sendEmail(@RequestBody @Validated SendEmailRequestVO email) {
         try {
             // 随机 5 位数的验证码
             int randomNum = (int) (Math.random() * 9000 + 1000);
 
             // 将随机验证码存入数据库
-
+            EmailVerify emailVerify = EmailVerify.builder()
+                    .email(email.getEmail())
+                    .code(randomNum)
+                    .build();
+            System.out.println(emailVerifyService.save(emailVerify));
+//            emailVerifyService.saveOrUpdate(emailVerify);
 
             // 将邮箱发送成功的消息进行响应
             SimpleMailMessage mailMessage = new SimpleMailMessage();
@@ -67,7 +73,7 @@ public class ByEmailController {
     }
 
     @PostMapping(value = "/verify_email")
-    public ResponseVO<User> verifyEmail(@Validated VerifyEmailRequestVO param) {
+    public ResponseVO<User> verifyEmail(@RequestBody @Validated VerifyEmailRequestVO param) {
         ResponseVO<User> responseVO = new ResponseVO<>();
         responseVO.setCode(1000);
         responseVO.setMessage("注册/登陆成功");
