@@ -1,8 +1,10 @@
 package com.example.demo.controller.requestvo.loginandregister.byemail;
 
-import com.example.demo.validator.annotationgroup.EmailValidAnnotationGroup;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 
 /**
  * @author 10338
@@ -13,8 +15,12 @@ public class SendEmailRequestVO {
     /**
      * 邮箱
      */
-    @EmailValidAnnotationGroup()
-    @ApiModelProperty(value = EmailValidAnnotationGroup.EMAIL_GROUP_MESSAGE)
+    @Email(message = "5000,邮箱格式不正确!")
+    @NotBlank(message = "5001,邮箱不能为空!")
+    @ApiModelProperty(
+            value = "5000,邮箱格式不正确!" + "<br>" +
+                    "5001,邮箱不能为空!"
+    )
     private String email;
 }
 

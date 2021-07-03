@@ -5,9 +5,9 @@ package com.example.demo.tool.tablegenerator;
  */
 public class GenerateTableRun {
     public static void main(String[] args) {
-        GenerateTableScanner generateTableScanner = new GenerateTableScanner(args);
-        generateTableScanner.setPackageName("com.example.demo.entity");
-        generateTableScanner.setDropAllIfExist(true);
-        generateTableScanner.run();
+        GenerateTableHandler generateTableHandler = new GenerateTableHandler(args);
+        generateTableHandler.setPackageName("com.example.demo.entity");
+        generateTableHandler.setDropAllIfExist(true);
+        generateTableHandler.run();
     }
 }

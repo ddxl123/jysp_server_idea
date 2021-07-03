@@ -5,19 +5,20 @@ import com.example.demo.tool.tablegenerator.annotation.OutColumnPYID;
 import com.example.demo.tool.tablegenerator.annotation.OutColumnTimestamp;
 import com.example.demo.tool.tablegenerator.annotation.OutTable;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 /**
  * @author 10338
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
 @OutTable
-public class FragmentOwnerAboutPendingPoolNode {
-    @OutColumnPYID
-    private BigInteger id;
-
+public class FragmentOwnerAboutPendingPoolNode extends BaseEntity<FragmentOwnerAboutPendingPoolNode> {
     @OutColumnAIID
     private BigInteger userAiid;
 
@@ -29,10 +30,4 @@ public class FragmentOwnerAboutPendingPoolNode {
 
     @OutColumnAIID
     private BigInteger recommendRuleAiid;
-
-    @OutColumnTimestamp
-    private Long createdAt;
-
-    @OutColumnTimestamp
-    private Long updatedAt;
 }

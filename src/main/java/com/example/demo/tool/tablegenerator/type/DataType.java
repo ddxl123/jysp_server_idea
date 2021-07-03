@@ -1,6 +1,7 @@
 package com.example.demo.tool.tablegenerator.type;
 
 import java.math.BigInteger;
+import java.time.Instant;
 
 /**
  * @author 10338
@@ -19,10 +20,12 @@ public enum DataType {
     VARCHAR_500("VARCHAR(550)", String.class),
     VARCHAR_1000("VARCHAR(1050)", String.class),
     VARCHAR_5000("VARCHAR(5050)", String.class),
-    VARCHAR_10000("VARCHAR(10050)", String.class);
+    VARCHAR_10000("VARCHAR(10050)", String.class),
+
+    DATETIME("DATETIME", Instant.class);
 
     private final String databaseName;
-    private Class<?> javaClass;
+    private final Class<?> javaClass;
 
     DataType(String typeName, Class<?> javaClass) {
         this.databaseName = typeName;

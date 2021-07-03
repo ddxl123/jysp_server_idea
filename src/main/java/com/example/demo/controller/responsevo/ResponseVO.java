@@ -3,6 +3,8 @@ package com.example.demo.controller.responsevo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.slf4j.Logger;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
@@ -12,6 +14,7 @@ import javax.validation.constraints.NotNull;
  */
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class ResponseVO<T> {
     /**
      * 响应码。
@@ -34,8 +37,13 @@ public class ResponseVO<T> {
     @Getter
     private T data;
 
-    public ResponseVO<T> setCode(Integer code) {
+    public ResponseVO<T> setCode(@NotNull Integer code) {
         this.code = code;
+        return this;
+    }
+
+    public ResponseVO<T> setMessage(@NotNull String message) {
+        this.message = message;
         return this;
     }
 
@@ -44,25 +52,74 @@ public class ResponseVO<T> {
         return this;
     }
 
-    public ResponseVO<T> setMessage(@Nullable String message) {
-        this.message = message;
+    /**
+     * 是否在响应的同时输出日志。
+     */
+    public ResponseVO<T> outputLog(@NotNull String description, @Nullable Throwable throwable, @NotNull Logger logger, @NotNull Integer loggerLevel) {
+        new ResponseWithLog(description, this, throwable, logger, loggerLevel).output();
         return this;
     }
+}
+
+/**
+ * @author 10338
+ */
+@Getter
+@AllArgsConstructor
+class ResponseWithLog {
 
     /**
-     * 必须放在最后，因为要 output
+     * 对日志的描述。
      */
-    public ResponseVO<T> outputLog(@NotNull ResponseWithLog responseWithLog) {
-        responseWithLog.setResponseVO(this);
-        return this;
+    @NotNull
+    private final String description;
+
+    /**
+     * 响应给客户端的响应体。
+     */
+    @NotNull
+    private final ResponseVO<?> responseVO;
+
+    /**
+     * 抛出的异常。
+     */
+    @Nullable
+    private final Throwable throwable;
+
+    /**
+     * 设置 Logger，因为 Logger 没法自动注入到非配置类中。
+     */
+    @NotNull
+    private final Logger logger;
+
+    /**
+     * loggerLevel: 日志级别。0->消息,1->警告,2->错误
+     */
+    @NotNull
+    private final Integer loggerLevel;
+
+    /**
+     * 输出日志到日志文件中。
+     */
+    public void output() {
+        switch (loggerLevel) {
+            case 0:
+                logger.info(content());
+                break;
+            case 1:
+                logger.warn(content());
+                break;
+            default:
+                logger.error(content());
+        }
     }
 
-    @Override
-    public String toString() {
-        return "ResponseVO{" +
-                "code=" + code +
-                ", message='" + message + '\'' +
-                ", data=" + data +
-                '}';
+    private String content() {
+        return "\n" +
+                "start ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + "\n" +
+                "description ---> " + description + "\n" +
+                "responseVO  ---> " + responseVO + "\n" +
+                "throwable   ---> " + throwable + "\n" +
+                "end   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
     }
 }

@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD})
 public @interface OutColumnTimestamp {
 
-    DataType dataType() default DataType.INT_LONG;
+    DataType dataType() default DataType.DATETIME;
 
     StorageType[] storageTypes() default {};
 }

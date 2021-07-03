@@ -1,21 +1,23 @@
 package com.example.demo.entity;
 
-import com.example.demo.tool.tablegenerator.annotation.*;
+import com.example.demo.tool.tablegenerator.annotation.OutColumn;
+import com.example.demo.tool.tablegenerator.annotation.OutColumnAIID;
+import com.example.demo.tool.tablegenerator.annotation.OutTable;
 import com.example.demo.tool.tablegenerator.type.DataType;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
 
 /**
  * @author 10338
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
 @OutTable
-public class PnMemoryPoolNode {
-    @OutColumnPYID
-    private BigInteger id;
-
+public class PnMemoryPoolNode extends BaseEntity<PnMemoryPoolNode> {
     @OutColumnAIID
     private BigInteger userAiid;
 
@@ -30,10 +32,4 @@ public class PnMemoryPoolNode {
 
     @OutColumn(dataType = DataType.CHAR_50)
     private String position;
-
-    @OutColumnTimestamp
-    private Long createdAt;
-
-    @OutColumnTimestamp
-    private Long updatedAt;
 }

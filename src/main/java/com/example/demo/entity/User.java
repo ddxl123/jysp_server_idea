@@ -1,27 +1,20 @@
 package com.example.demo.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.demo.tool.tablegenerator.annotation.OutColumn;
-import com.example.demo.tool.tablegenerator.annotation.OutColumnPYID;
-import com.example.demo.tool.tablegenerator.annotation.OutColumnTimestamp;
 import com.example.demo.tool.tablegenerator.annotation.OutTable;
 import com.example.demo.tool.tablegenerator.type.DataType;
 import lombok.Data;
-
-import java.math.BigInteger;
-import java.sql.Timestamp;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
  * @author 10338
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
 @OutTable
-@TableName
-public class User {
-
-    @OutColumnPYID
-    private BigInteger id;
-
+public class User extends BaseEntity<User> {
     @OutColumn(dataType = DataType.CHAR_20)
     private String username;
 
@@ -30,12 +23,4 @@ public class User {
 
     @OutColumn(dataType = DataType.CHAR_50)
     private String email;
-
-    @OutColumnTimestamp
-    private Long createdAt;
-
-    @OutColumnTimestamp
-    private Long updatedAt;
-
-
 }

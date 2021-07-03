@@ -45,7 +45,7 @@ class AnnotationClasses {
  * @author 10338
  */
 @Getter
-public class GenerateTableScanner {
+public class GenerateTableHandler {
 
 
     private final JdbcTemplate jdbcTemplate;
@@ -56,7 +56,7 @@ public class GenerateTableScanner {
     @Setter
     private String packageName;
 
-    public GenerateTableScanner(String[] args) {
+    public GenerateTableHandler(String[] args) {
         SpringApplication springApplication = new SpringApplication(DemoApplication.class);
         springApplication.setBannerMode(Banner.Mode.OFF);
         this.context = springApplication.run(args);
@@ -101,17 +101,32 @@ public class GenerateTableScanner {
                 // 扫描到的 class
                 String classname = reader.getClassMetadata().getClassName();
                 Class<?> clazz = Class.forName(classname);
-                // 判断类中是否有指定注解
+
+                // 判断类中是否有指定注解。
                 if (clazz.isAnnotationPresent(OutTable.class)) {
 
-                    // 获取实体映射的表名
+                    // 获取实体类映射的表名。
                     String tableName = toLineCase(clazz.getSimpleName());
 
-                    // 全部实体映射的 字段—column。
+                    // 实体映射的全部 字段—column。
                     StringBuilder fieldContent = new StringBuilder();
 
-                    // 遍历每个类的每个字段(含私有,不含继承)
-                    for (Field field : clazz.getDeclaredFields()) {
+                    // 每个类的每个字段(含当前类私有和全部继承类私有)。
+                    List<Field[]> fieldsGroup = new ArrayList<>();
+                    Class<?> whileClass = clazz;
+                    while (whileClass != Object.class) {
+                        fieldsGroup.add(whileClass.getDeclaredFields());
+                        whileClass = whileClass.getSuperclass();
+                    }
+                    // 组合成最终 fields。
+                    ArrayList<Field> fields = new ArrayList<>();
+                    for (int i = fieldsGroup.size() - 1; i >= 0; i--) {
+                        Field[] fs = fieldsGroup.get(i);
+                        fields.addAll(Arrays.asList(fs));
+                    }
+
+                    // 遍历每个类的每个字段(含当前类私有和全部继承类私有)。
+                    for (Field field : fields) {
 
                         // 获取每个字段的每个符合要求的注解，若不存在注解或不符合要求，则返回 Optional.empty()。
                         Optional<TypeWrap> typeWrapOptional = getAnnotationProperty(field);
@@ -125,20 +140,20 @@ public class GenerateTableScanner {
                             // 获取 字段—column 名。
                             fieldContent.append(toLineCase(field.getName())).append(" ");
 
-                            // 必须调用 getTypeName, 因为不调用会有下划线 CHAR_20
+                            // 必须调用 getTypeName, 因为不调用会有下划线 CHAR_20。
                             fieldContent.append(typeWrap.getDataType().getDatabaseName()).append(" ");
                             for (StorageType storageTypeName : typeWrap.getStorageTypes()) {
-                                // 必须调用 getStorageTypeName, 因为不调用会有下划线 AUTO_INCREMENT
+                                // 必须调用 getStorageTypeName, 因为不调用会有下划线 AUTO_INCREMENT。
                                 fieldContent.append(storageTypeName.getStorageTypeName()).append(" ");
                             }
 
                             fieldContent.append(",\n");
                         }
                     }
-                    // 删掉最后一个逗号
+                    // 删掉最后一个逗号。
                     fieldContent.deleteCharAt(fieldContent.length() - 2);
 
-                    // 创建单表的完整 sql 语句
+                    // 创建单表的完整 sql 语句。
                     String sql = generateSql(tableName, fieldContent);
 
                     // 执行 sql 语句
@@ -150,7 +165,7 @@ public class GenerateTableScanner {
             System.out.println("====================================================================================");
             System.out.println("====================================================================================");
             System.out.println("====================================================================================");
-            // 关闭 context
+            // 关闭 context。
             context.close();
         } catch (Throwable throwable) {
             throwable.printStackTrace();
