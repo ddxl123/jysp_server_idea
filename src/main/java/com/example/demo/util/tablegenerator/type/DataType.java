@@ -1,4 +1,4 @@
-package com.example.demo.tool.tablegenerator.type;
+package com.example.demo.util.tablegenerator.type;
 
 import java.math.BigInteger;
 import java.time.Instant;

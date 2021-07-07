@@ -2,8 +2,8 @@ package com.example.demo.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.example.demo.tool.tablegenerator.annotation.OutColumnPYID;
-import com.example.demo.tool.tablegenerator.annotation.OutColumnTimestamp;
+import com.example.demo.util.tablegenerator.annotation.OutColumnPYID;
+import com.example.demo.util.tablegenerator.annotation.OutColumnTimestamp;
 import lombok.Data;
 import lombok.Getter;
 

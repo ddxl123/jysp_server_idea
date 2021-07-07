@@ -8,6 +8,5 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * @author 10338
  */
-@Mapper
 public interface EmailVerifyMapper extends BaseMapper<EmailVerify> {
 }

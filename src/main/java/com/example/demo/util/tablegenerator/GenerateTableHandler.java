@@ -1,10 +1,10 @@
-package com.example.demo.tool.tablegenerator;
+package com.example.demo.util.tablegenerator;
 
 import com.example.demo.DemoApplication;
-import com.example.demo.tool.tablegenerator.annotation.*;
-import com.example.demo.tool.tablegenerator.type.DataType;
-import com.example.demo.tool.tablegenerator.type.StorageType;
-import com.example.demo.tool.tablegenerator.type.TypeWrap;
+import com.example.demo.util.tablegenerator.annotation.*;
+import com.example.demo.util.tablegenerator.type.DataType;
+import com.example.demo.util.tablegenerator.type.StorageType;
+import com.example.demo.util.tablegenerator.type.TypeWrap;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.Banner;
@@ -50,9 +50,8 @@ public class GenerateTableHandler {
 
     private final JdbcTemplate jdbcTemplate;
     private final ConfigurableApplicationContext context;
-    private final Pattern humpPattern = Pattern.compile("[A-Z]");
     @Setter
-    boolean isDropAllIfExist = false;
+    int isDropAllIfExist = 0;
     @Setter
     private String packageName;
 
@@ -68,7 +67,7 @@ public class GenerateTableHandler {
         System.out.println("====================================================================================");
         System.out.println("====================================================================================");
         try {
-            if (isDropAllIfExist) {
+            if (isDropAllIfExist == 1) {
                 System.out.println("正在删除全部表...");
 
                 String dbUrl = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection().getMetaData().getURL();
@@ -173,6 +172,7 @@ public class GenerateTableHandler {
     }
 
     private String toLineCase(String camelCase) {
+        Pattern humpPattern = Pattern.compile("[A-Z]");
         Matcher matcher = humpPattern.matcher(camelCase);
         StringBuilder sb = new StringBuilder();
         while (matcher.find()) {

@@ -1,7 +1,7 @@
 package com.example.demo.entity;
 
-import com.example.demo.tool.tablegenerator.annotation.OutColumnAIID;
-import com.example.demo.tool.tablegenerator.annotation.OutTable;
+import com.example.demo.util.tablegenerator.annotation.OutColumnAIID;
+import com.example.demo.util.tablegenerator.annotation.OutTable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;

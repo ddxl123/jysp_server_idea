@@ -1,4 +1,4 @@
-package com.example.demo.tool.tablegenerator.annotation;
+package com.example.demo.util.tablegenerator.annotation;
 
 
 import java.lang.annotation.*;

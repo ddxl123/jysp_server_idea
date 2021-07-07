@@ -1,20 +1,19 @@
-package com.example.demo.tool.tablegenerator.type;
+package com.example.demo.util.tablegenerator.type;
 
 import lombok.Data;
-
-import javax.validation.constraints.NotNull;
+import org.springframework.lang.NonNull;
 
 /**
  * @author 10338
  */
 @Data
 public class TypeWrap {
-    @NotNull
+    @NonNull
     private final DataType dataType;
-    @NotNull
+    @NonNull
     private final StorageType[] storageTypes;
 
-    public TypeWrap(DataType dataType, StorageType[] storageTypes) {
+    public TypeWrap(@NonNull DataType dataType, @NonNull StorageType[] storageTypes) {
         this.dataType = dataType;
         this.storageTypes = storageTypes;
     }

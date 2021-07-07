@@ -1,14 +1,12 @@
 package com.example.demo.entity;
 
-import com.example.demo.tool.tablegenerator.annotation.*;
-import com.example.demo.tool.tablegenerator.type.DataType;
+import com.example.demo.util.tablegenerator.annotation.*;
+import com.example.demo.util.tablegenerator.type.DataType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.time.Instant;
 
 /**
  * @author 10338

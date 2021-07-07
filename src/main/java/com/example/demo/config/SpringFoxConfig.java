@@ -21,7 +21,7 @@ public class SpringFoxConfig {
                 .apiInfo(apiInfo())
                 .select()
                 // 只对以下起包作用
-                .apis(RequestHandlerSelectors.basePackage(GlobalConstant.CONTROLLER_PACKAGE))
+                .apis(RequestHandlerSelectors.basePackage(PackageNameConstant.CONTROLLER_PACKAGE))
                 .build();
     }
 

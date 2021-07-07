@@ -1,8 +1,8 @@
 package com.example.demo.entity;
 
-import com.example.demo.tool.tablegenerator.annotation.OutColumn;
-import com.example.demo.tool.tablegenerator.annotation.OutTable;
-import com.example.demo.tool.tablegenerator.type.DataType;
+import com.example.demo.util.tablegenerator.annotation.OutColumn;
+import com.example.demo.util.tablegenerator.annotation.OutTable;
+import com.example.demo.util.tablegenerator.type.DataType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -18,9 +18,12 @@ public class User extends BaseEntity<User> {
     @OutColumn(dataType = DataType.CHAR_20)
     private String username;
 
-    @OutColumn(dataType = DataType.CHAR_20)
+    @OutColumn(dataType = DataType.CHAR_100)
     private String password;
 
     @OutColumn(dataType = DataType.CHAR_50)
     private String email;
+
+    @OutColumn(dataType = DataType.INT_INTEGER)
+    private Integer age;
 }
