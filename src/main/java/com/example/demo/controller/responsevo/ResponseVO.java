@@ -1,11 +1,10 @@
 package com.example.demo.controller.responsevo;
 
-import com.example.demo.util.logger.Logout;
+import com.example.demo.config.loggerconfig.Logger;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.slf4j.Logger;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -55,8 +54,8 @@ public class ResponseVO<T> {
     /**
      * 是否在响应的同时输出日志。
      */
-    public ResponseVO<T> outputLog(@NonNull String description, @Nullable Throwable throwable, @NonNull Logger logger, @NonNull Integer loggerLevel) {
-        new Logout(description, this, throwable, logger, loggerLevel).output();
+    public ResponseVO<T> outputLog(@NonNull String description, @Nullable Throwable throwable, @NonNull org.slf4j.Logger logger, @NonNull Integer loggerLevel) {
+        new Logger(description, this, throwable, logger, loggerLevel).output();
         return this;
     }
 }

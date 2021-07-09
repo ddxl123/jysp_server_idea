@@ -1,6 +1,6 @@
 package com.example.demo.config;
 
-import com.example.demo.jwt.JwtInterceptor;
+import com.example.demo.interceptor.MainInterceptor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -9,14 +9,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     final
-    JwtInterceptor jwtInterceptor;
+    MainInterceptor mainInterceptor;
 
-    public WebMvcConfig(JwtInterceptor jwtInterceptor) {
-        this.jwtInterceptor = jwtInterceptor;
+    public WebMvcConfig(MainInterceptor mainInterceptor) {
+        this.mainInterceptor = mainInterceptor;
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(jwtInterceptor).addPathPatterns();
+        registry.addInterceptor(mainInterceptor).addPathPatterns();
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.controller.controller.test;
 
+import com.example.demo.constant.JwtConstant;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @AllArgsConstructor
 @RequestMapping(
-        path = "/test"
+        path = JwtConstant.JWT_URL + "/test"
 )
 public class TestController {
     @GetMapping("/get")

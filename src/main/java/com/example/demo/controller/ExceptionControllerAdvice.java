@@ -1,26 +1,25 @@
 package com.example.demo.controller;
 
 import com.baomidou.mybatisplus.core.exceptions.MybatisPlusException;
+import com.example.demo.constant.code.Code3;
 import com.example.demo.controller.responsevo.ResponseVO;
-import com.example.demo.jwt.exception.BaseJwtException;
-import com.example.demo.jwt.exception.JwtTokenCreateException;
-import com.example.demo.jwt.exception.JwtTokenExpiredException;
+import com.example.demo.exception.InterceptorExceptionPackage;
+import com.example.demo.exception.JwtExceptionPackage;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
-import org.springframework.http.MediaType;
+import org.springframework.dao.DataAccessException;
 import org.springframework.lang.NonNull;
 import org.springframework.mail.MailException;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.StringTokenizer;
 
-
 /**
  * 类响应码 —— 3000000
+ *
  * @author 10338
  */
 @RestControllerAdvice
@@ -44,13 +43,8 @@ public class ExceptionControllerAdvice {
      * 拦截其他未知异常。
      */
     @ExceptionHandler(Throwable.class)
-    @RequestMapping(
-            path = "/login_and_register_by_email",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
     public ResponseVO<Void> otherExceptionHandler(Throwable throwable) {
-        return setResponseException(10000, "未知异常", throwable);
+        return setResponseException(Code3.C1_01_01, "未知异常", throwable);
     }
 
     /**
@@ -67,11 +61,11 @@ public class ExceptionControllerAdvice {
             if (bindException.hasErrors()) {
                 errMessage = bindException.getAllErrors().get(0).getDefaultMessage();
             } else {
-                return setResponseException(10001, "不存在 bindException 的 error。", bindException);
+                return setResponseException(Code3.C1_02_01, "不存在 bindException 的 error。", bindException);
             }
 
             if (!StringUtils.hasText(errMessage)) {
-                return setResponseException(10002, "存在 bindException 的 error，但为指定 message。", bindException);
+                return setResponseException(Code3.C1_02_02, "存在 bindException 的 error，但为指定 message。", bindException);
             }
 
             // 用 "," 将 errMessage 分割成 code 和 message
@@ -83,7 +77,7 @@ public class ExceptionControllerAdvice {
                 try {
                     responseVO.setCode(Integer.parseInt(stringTokenizer.nextToken()));
                 } catch (NumberFormatException numberFormatException) {
-                    return setResponseException(10003, "可能是 Message 格式异常，code 的 String 类型无法解析成 int 类型", numberFormatException);
+                    return setResponseException(Code3.C1_02_03, "可能是 Message 格式异常，code 的 String 类型无法解析成 int 类型", numberFormatException);
                 }
             }
 
@@ -95,9 +89,10 @@ public class ExceptionControllerAdvice {
             responseVO.setMessage(stringBuffer.toString());
 
             // 验证结果不匹配的处理。
+            // 这里不需要输出日志。
             return responseVO;
         } catch (Throwable throwable) {
-            return setResponseException(10004, "请求参数的验证，出现未知异常！", throwable);
+            return setResponseException(Code3.C1_02_04, "请求参数的验证，出现未知异常！", throwable);
         }
     }
 
@@ -106,7 +101,7 @@ public class ExceptionControllerAdvice {
      */
     @ExceptionHandler(MybatisPlusException.class)
     public ResponseVO<Void> mybatisPlusExceptionHandler(MybatisPlusException mybatisPlusException) {
-        return setResponseException(10005, "MybatisPlus 的 service、mapper 等对数据库的操作出现的异常。", mybatisPlusException);
+        return setResponseException(Code3.C1_03_01, "MybatisPlus 的 service、mapper 等对数据库的操作出现的异常。", mybatisPlusException);
     }
 
 
@@ -115,24 +110,56 @@ public class ExceptionControllerAdvice {
      */
     @ExceptionHandler(MailException.class)
     public ResponseVO<Void> mailExceptionHandler(MailException mailException) {
-        return setResponseException(10006, "邮箱发送异常", mailException);
+        return setResponseException(Code3.C1_04_01, "邮箱发送异常", mailException);
     }
 
     /**
-     * jwt 验证异常。包含 token 过期处理、token 创建异常。
+     * jwt 验证异常。包含 token 验证异常、token 过期处理。
+     * <p>
+     * 不包含 token 创建异常
      */
-    @ExceptionHandler(BaseJwtException.class)
-    public ResponseVO<Void> jwtException(BaseJwtException baseJwtException) {
-        if (baseJwtException.getClass() == JwtTokenExpiredException.class) {
+    @ExceptionHandler(JwtExceptionPackage.class)
+    public ResponseVO<Void> baseJwtException(JwtExceptionPackage jwtExceptionPackage) {
+        if (jwtExceptionPackage.getExpiredException() != null) {
             return new ResponseVO<Void>()
-                    .setCode(10007)
+                    .setCode(Code3.C1_05_01)
                     .setMessage("用户过期，请重新登陆！")
                     .setData(null);
-        } else if (baseJwtException.getClass() == JwtTokenCreateException.class) {
-            return setResponseException(10008, "Token 创建异常！", baseJwtException);
-        } else {
-            return setResponseException(10008, "Token 验证异常！", baseJwtException);
         }
+        //
+        else if (jwtExceptionPackage.getDecodeException() != null) {
+            return setResponseException(Code3.C1_05_02, "Token 验证不通过！用户发出了错误 Token ，可能存在应用数据被篡改的操作！", jwtExceptionPackage.getDecodeException());
+        }
+        //
+        else if (jwtExceptionPackage.getOtherException() != null) {
+            return setResponseException(Code3.C1_05_03, "Token 验证异常！", jwtExceptionPackage.getOtherException());
+        }
+        //
+        else {
+            return setResponseException(Code3.C1_05_04, "JwtExceptionPackage 实例中含有未判断的 Exception！", jwtExceptionPackage.getExistVerifyException());
+        }
+    }
+
+    /**
+     * 拦截器的异常。
+     */
+    @ExceptionHandler(InterceptorExceptionPackage.class)
+    public ResponseVO<Void> baseInterceptorException(InterceptorExceptionPackage interceptorExceptionPackage) {
+        if (interceptorExceptionPackage.getIncompleteURLException() != null) {
+            return setResponseException(Code3.C1_06_01, "URL 不符合规范！", interceptorExceptionPackage.getIncompleteURLException());
+        }
+        //
+        else {
+            return setResponseException(Code3.C1_06_02, "InterceptorExceptionPackage 实例中含有未判断的 Exception！", interceptorExceptionPackage.getExistException());
+        }
+    }
+
+    /**
+     * sql 异常
+     */
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseVO<Void> sqlException(DataAccessException dataAccessException) {
+        return setResponseException(Code3.C1_07_01, "数据入口异常，可能是 实体 与 数据表 不相互对应！", dataAccessException);
     }
 
 }

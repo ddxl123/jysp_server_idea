@@ -2,6 +2,8 @@ package com.example.demo.controller.controller.loginandregister;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.example.demo.config.passwordconfig.Passworder;
+import com.example.demo.constant.JwtConstant;
+import com.example.demo.constant.code.Code1;
 import com.example.demo.controller.requestvo.loginandregister.byemail.SendEmailRequestVO;
 import com.example.demo.controller.requestvo.loginandregister.byemail.VerifyEmailRequestVO;
 import com.example.demo.controller.responsevo.ResponseVO;
@@ -9,6 +11,7 @@ import com.example.demo.controller.responsevo.loginandregister.byemail.VerifyEma
 import com.example.demo.entity.EmailVerify;
 import com.example.demo.entity.User;
 import com.example.demo.jwt.Jwtter;
+import com.example.demo.jwt.tokener.JwtGenerateTokener;
 import com.example.demo.service.impl.EmailVerifyServiceImpl;
 import com.example.demo.service.impl.UserServiceImpl;
 import io.swagger.annotations.ApiResponse;
@@ -30,15 +33,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 类响应码 --- 1010000
- *
  * @author 10338
  */
 @Data
 @RestController
 @AllArgsConstructor
 @RequestMapping(
-        path = "/login_and_register_by_email",
+        path = JwtConstant.NO_JWT_URL + "/login_and_register_by_email",
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE
 )
@@ -51,12 +52,9 @@ public class ByEmailController {
     UserServiceImpl userService;
     Passworder passworder;
 
-    /**
-     * 方法响应码 --- 1010100
-     */
     @ApiResponses({
-            @ApiResponse(code = 101, message = "发送失败，请重试！"),
-            @ApiResponse(code = 102, message = "邮箱已发送, 请注意查收!")
+            @ApiResponse(code = Code1.C1_01_01, message = "发送失败，请重试！"),
+            @ApiResponse(code = Code1.C1_01_02, message = "邮箱已发送, 请注意查收!")
     })
     @PostMapping(path = "/send_email")
     @NonNull
@@ -79,7 +77,7 @@ public class ByEmailController {
         // 返回的成功与否并非程序异常(但此处可能为异常)。
         // 当仅仅是 update 时，也会返回 false，原因可能是没 find 到，而并非程序异常。
         if (!isSuccess) {
-            return new ResponseVO<Void>(101, "发送失败，请重试！", null)
+            return new ResponseVO<Void>(Code1.C1_01_01, "发送失败，请重试！", null)
                     .outputLog("存储修改或存储数据失败，此处可能是 sql 内部异常。", null, logger, 1);
 
         }
@@ -93,18 +91,18 @@ public class ByEmailController {
         mailMessage.setText("验证码在标题上");
         javaMailSender.send(mailMessage);
 
-        return new ResponseVO<>(102, "邮箱已发送, 请注意查收!", null);
+        return new ResponseVO<>(Code1.C1_01_02, "邮箱已发送, 请注意查收!", null);
     }
 
 
-    /**
-     * 方法响应码 --- 1010200
-     */
     @ApiResponses({
-            @ApiResponse(code = 103, message = "注册成功"),
-            @ApiResponse(code = 104, message = "登陆成功"),
-            @ApiResponse(code = 105, message = "邮箱重复异常，请联系管理员！"),
-            @ApiResponse(code = 106, message = "验证码错误！")
+            @ApiResponse(code = Code1.C1_02_01, message = "注册失败，请重新尝试或联系管理员！"),
+            @ApiResponse(code = Code1.C1_02_02, message = "登陆成功！"),
+            @ApiResponse(code = Code1.C1_02_03, message = "注册失败，请联系管理员！"),
+            @ApiResponse(code = Code1.C1_02_04, message = "登陆失败，请重新尝试或联系管理员！"),
+            @ApiResponse(code = Code1.C1_02_05, message = "登陆成功！"),
+            @ApiResponse(code = Code1.C1_02_06, message = "邮箱重复异常，请联系管理员！"),
+            @ApiResponse(code = Code1.C1_02_07, message = "验证码错误！")
     })
     @PostMapping(value = "/verify_email")
     @NonNull
@@ -134,14 +132,17 @@ public class ByEmailController {
                         .setPassword(passworder.generateRandomPassword(16, true));// 生成随机加密过的密码
 
                 // 生成 Token
-                Jwtter jwtter = new Jwtter();
-                boolean isToken = jwtter.generateToken(newUser);
-                if (!isToken) {
+                JwtGenerateTokener jwtGenerateTokener = new Jwtter().generateToken(newUser);
+                if (jwtGenerateTokener.getJwtExceptionPackage().hasVerifyException()) {
                     return new ResponseVO<VerifyEmailResponseVO>()
-                            .setCode(103)
+                            .setCode(Code1.C1_02_01)
                             .setMessage("注册失败，请重新尝试或联系管理员！")
                             .setData(null)
-                            .outputLog("生成 Token 异常！", jwtter.getJwtToken().getThrowable(), logger, 2);
+                            .outputLog(
+                                    "生成 Token 异常！",
+                                    jwtGenerateTokener.getJwtExceptionPackage().getExistGenerateException(),
+                                    logger,
+                                    2);
                 }
 
                 // 存储用户
@@ -149,19 +150,19 @@ public class ByEmailController {
                 if (saveResult) {
                     // 存储成功
                     return new ResponseVO<VerifyEmailResponseVO>()
-                            .setCode(103)
+                            .setCode(Code1.C1_02_02)
                             .setMessage("注册成功！")
                             .setData(new VerifyEmailResponseVO()
                                     .setUserId(newUser.getId())
                                     .setUsername(newUser.getUsername())
                                     .setEmail(newUser.getEmail())
                                     .setAge(newUser.getAge())
-                                    .setToken(jwtter.getJwtToken().getToken())
+                                    .setToken(jwtGenerateTokener.getToken())
                             );
                 } else {
                     // 存储失败
                     return new ResponseVO<VerifyEmailResponseVO>()
-                            .setCode(104)
+                            .setCode(Code1.C1_02_03)
                             .setMessage("注册失败，请联系管理员！")
                             .setData(null)
                             .outputLog("存储新用户返回结果为 false！", null, logger, 2);
@@ -171,31 +172,36 @@ public class ByEmailController {
             // 存在唯一一个该邮箱 —— 登陆用户
             else if (userSize == 1) {
                 User user = users.get(0);
-                Jwtter jwtter = new Jwtter();
-                boolean isToken = jwtter.generateToken(user);
-                if (!isToken) {
+                // 生成 Token
+                JwtGenerateTokener jwtGenerateTokener = new Jwtter().generateToken(user);
+                if (jwtGenerateTokener.getJwtExceptionPackage().hasGenerateException()) {
                     return new ResponseVO<VerifyEmailResponseVO>()
-                            .setCode(103)
+                            .setCode(Code1.C1_02_04)
                             .setMessage("登陆失败，请重新尝试或联系管理员！")
                             .setData(null)
-                            .outputLog("生成 Token 异常！", jwtter.getJwtToken().getThrowable(), logger, 2);
+                            .outputLog(
+                                    "生成 Token 异常！",
+                                    jwtGenerateTokener.getJwtExceptionPackage().getExistGenerateException(),
+                                    logger,
+                                    2);
                 }
+
                 return new ResponseVO<VerifyEmailResponseVO>()
-                        .setCode(104)
+                        .setCode(Code1.C1_02_05)
                         .setMessage("登陆成功！")
                         .setData(new VerifyEmailResponseVO()
                                 .setUserId(user.getId())
                                 .setUsername(user.getUsername())
                                 .setEmail(user.getEmail())
                                 .setAge(user.getAge())
-                                .setToken(jwtter.getJwtToken().getToken())
+                                .setToken(jwtGenerateTokener.getToken())
                         );
             }
 
             // 存在多个该邮箱 —— 异常
             else {
                 return new ResponseVO<VerifyEmailResponseVO>()
-                        .setCode(105)
+                        .setCode(Code1.C1_02_06)
                         .setMessage("邮箱重复异常，请联系管理员！")
                         .setData(null)
                         .outputLog("数据库存在多个邮箱", null, logger, 2);
@@ -205,7 +211,7 @@ public class ByEmailController {
         // 若邮箱验证码错误
         else {
             return new ResponseVO<VerifyEmailResponseVO>()
-                    .setCode(106)
+                    .setCode(Code1.C1_02_07)
                     .setMessage("验证码错误！")
                     .setData(null);
         }

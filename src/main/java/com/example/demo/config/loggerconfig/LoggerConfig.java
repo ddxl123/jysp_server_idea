@@ -1,6 +1,5 @@
-package com.example.demo.config;
+package com.example.demo.config.loggerconfig;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class LoggerConfig {
 
     @Bean
-    public Logger getLogger() {
-        return LoggerFactory.getLogger(Logger.class);
+    public org.slf4j.Logger getLogger() {
+        return LoggerFactory.getLogger(org.slf4j.Logger.class);
     }
 }

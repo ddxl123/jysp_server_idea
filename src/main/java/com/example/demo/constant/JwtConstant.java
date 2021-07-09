@@ -1,6 +1,6 @@
-package com.example.demo.jwt;
+package com.example.demo.constant;
 
-public class JwtConstants {
+public class JwtConstant {
     /**
      * token 对应的请求头 key
      */

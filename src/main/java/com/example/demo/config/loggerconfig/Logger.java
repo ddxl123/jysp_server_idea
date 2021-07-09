@@ -1,4 +1,4 @@
-package com.example.demo.util.logger;
+package com.example.demo.config.loggerconfig;
 
 import com.example.demo.controller.responsevo.ResponseVO;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,7 @@ import org.springframework.lang.Nullable;
  */
 @Getter
 @AllArgsConstructor
-public class Logout {
+public class Logger {
 
     /**
      * 对日志的描述。

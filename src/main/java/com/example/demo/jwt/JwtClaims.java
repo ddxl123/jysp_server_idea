@@ -1,12 +1,17 @@
 package com.example.demo.jwt;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.springframework.lang.NonNull;
 
-@Data
-@NoArgsConstructor
 public class JwtClaims {
+
+    public final String userIdKey = "user_id";
+
     @NonNull
-    private String userId;
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private String userIdValue;
 }
